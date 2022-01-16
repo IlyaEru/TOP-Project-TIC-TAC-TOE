@@ -18,7 +18,7 @@ const playerFuctory = (id, secondId) => {
         const shape = playerContariner.querySelector('.shape span');
         const secondPlayerShape = secondPlayerContainer.querySelector('.shape span');
         if (shape.classList.contains('o')) {
-            shape.textContent = 'X'
+            shape.textContent = 'x'
             classToggle(shape, 'o', 'x')
             secondPlayerShape.textContent = 'O'
             classToggle(secondPlayerShape, 'o', 'x')
@@ -32,7 +32,7 @@ const playerFuctory = (id, secondId) => {
     }
     shapeButton.addEventListener('click', changeShape)
     const renderName = () => {
-        nameContainer.innerHTML = `<h2>${playerName}</h2>
+        nameContainer.innerHTML = `<h2 class = "name">${playerName}</h2>
         <button id="edit-player-1"><img  src="img/edit.png" alt="Edit player name"></button>`
         addEvent()
     }
@@ -46,18 +46,37 @@ const playerFuctory = (id, secondId) => {
 
         const playNameHeader = playerContariner.querySelector('.menu-name h2')
         if (!playNameHeader.classList.contains('turn')) {
-                    playNameHeader.classList.toggle('turn')
+            playNameHeader.classList.toggle('turn')
         }
 
         resultPara.textContent = 'It is ' + playNameHeader.textContent + "'s turn"
         if (!playNameHeader.classList.contains('turn')) {
             resultPara.textContent = '';
         }
+        const robot = playerContariner.querySelector('.robot-button');
+        if (robot.classList.contains('current')) {
+            gameBoard.startUiGame()
+            const playerName = playerContariner.id;
+            if (playerName === 'player-2') {
+                player1.getTurn()
+            }
+            if (playerName === 'player-1') {
+                player2.getTurn()
+            }
+        }
+
     }
     const useTurn = () => {
         playerContariner.querySelector('.menu-name h2').classList.toggle('turn');
         secondPlayerContainer.querySelector('.menu-name h2').classList.toggle('turn');
         resultPara.textContent = 'It is ' + secondPlayerContainer.querySelector('.menu-name h2').textContent + "'s turn"
+        const playerName = playerContariner.id;
+            if (playerName === 'player-2') {
+                player1.getTurn()
+            }
+            if (playerName === 'player-1') {
+                player2.getTurn()
+            }
     }
     const saveNewName = () => {
         const newName = playerContariner.querySelector('.name-change-input').value
@@ -94,7 +113,6 @@ const gameBoard = (() => {
 
     const playerWon = function (playerNode) {
         const showenPlayerName = playerNode.querySelector('.menu-name h2').textContent;
-        console.log('someone won');
         cells.forEach((cell) => {
             cell.removeEventListener('click', fillCell)
         })
@@ -123,7 +141,7 @@ const gameBoard = (() => {
     function start() {
         startGameButton.textContent = 'Start Game'
         for (let i = 0; i < board.length; i++) {
-            board[i] = ''; 
+            board[i] = '';
         }
         renderBoard()
         random = randomNum(2);
@@ -146,7 +164,7 @@ const gameBoard = (() => {
     function fillCell() {
         const currentPlay = document.querySelector('.turn')
         const currentPlayerObj = currentPlay.parentNode.parentNode
-        if (currentPlayerObj.querySelector('.shape span').textContent === 'X') {
+        if (currentPlayerObj.querySelector('.shape span').textContent === 'x') {
             if (board[this.getAttribute('data-cellplace')] === '') {
                 board[this.getAttribute('data-cellplace')] = 'x';
                 renderBoard()
@@ -167,7 +185,7 @@ const gameBoard = (() => {
             playerWon(currentPlayerObj)
         }
         if (!checkForWinner() && !board.includes('')) {
-            resultPara.textContent = "!It is a draw";
+            resultPara.textContent = "It is a draw!";
             startGameButton.textContent = 'Play Again?';
         }
     }
@@ -175,22 +193,37 @@ const gameBoard = (() => {
     const checkForWinner = () => {
         for (let i = 0; i < 7; i += 3) {
             if (board[i] === board[i + 1] && board[i] === board[i + 2] && board[i] !== '') {
-                console.log('winner 1');
                 return true
             }
         }
         for (let i = 0; i < 3; i++) {
             if (board[i] === board[i + 3] && board[i] === board[i + 6] && board[i] !== '') {
-                console.log('winner 2');
                 return true
             }
         }
         if (board[0] === board[4] && board[4] === board[8] && board[4] !== '' || board[2] === board[4] && board[4] === board[6] && board[4] !== '') {
-            console.log('winner 3');
-
             return true
         }
         return false
+    }
+
+    const startUiGame = () => {
+        if (board.includes('')) {
+            let i = 0;
+            let random;
+            let randomForCSS;
+            do {
+                random = randomNum(9);
+                randomForCSS = random + 1
+                let randomCell = document.querySelector(`.cell:nth-child(${randomForCSS})`)
+                if (board[random] === '') {
+                    randomCell.click()
+                    break
+                }
+                i++
+            } while (i < 6);
+        }
+
     }
 
     startGameButton.addEventListener('click', start)
@@ -203,9 +236,49 @@ const gameBoard = (() => {
             else if (board[i] === 'x') {
                 cell.innerHTML = '<span class="x">x</span>'
             }
-            else  cell.innerHTML = '';
+            else cell.innerHTML = '';
 
         }
     }
-    return { renderBoard, checkForWinner }
+    return { renderBoard, checkForWinner, startUiGame }
+})()
+
+const uiMode = (() => {
+    let previousName = 'Player';
+    const robotButtons = document.querySelectorAll('.robot-button');
+    const humanButtons = document.querySelectorAll('.human-button');
+
+    robotButtons.forEach((robotButton) => {
+        robotButton.addEventListener('click', startUiMode)
+    })
+
+    humanButtons.forEach((humanButton) => {
+        humanButton.addEventListener('click', startManualMode)
+    })
+
+    function startUiMode() {
+        const modeMenu = this.parentNode.parentNode;
+        const nameNode = modeMenu.parentNode.querySelector('.name');
+        const nodeID = modeMenu.parentNode.id
+        if (nodeID === 'player-1') {
+            document.querySelector('#player-2 .human-button').click()
+        }
+        else {document.querySelector('#player-1 .human-button').click()}
+        previousName = nameNode.textContent;
+        const robot = modeMenu.querySelector('.robot-button');
+        const human = modeMenu.querySelector('.human-button');
+        if (!robot.classList.contains('current')) { robot.classList.add('current') }
+        human.classList.remove('current');
+        nameNode.textContent = 'Robo'
+    }
+    function startManualMode() {
+        const modeMenu = this.parentNode.parentNode;
+        const nameNode = modeMenu.parentNode.querySelector('.name');
+        const robot = modeMenu.querySelector('.robot-button');
+        const human = modeMenu.querySelector('.human-button');
+        if (!human.classList.contains('current')) { human.classList.add('current') }
+        robot.classList.remove('current');
+        nameNode.textContent = previousName;
+    }
+
 })()

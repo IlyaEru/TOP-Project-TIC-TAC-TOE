@@ -129,6 +129,13 @@ main .menu{
     gap: 1vw;
 
 }
+.human-robot-menu button img{
+    height: 3vw;
+    width: 3vw;
+}
+.current {
+    border: 0.3em solid steelblue;
+}
 .menu button{
     background: none;
 	color: inherit;
