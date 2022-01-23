@@ -101,9 +101,7 @@ main .board{
     align-items: center;
     padding-bottom: 2vw;
 }
-span.o {
-    padding-bottom: 0;
-}
+
 .board div {
     display: flex;
     justify-content: center;

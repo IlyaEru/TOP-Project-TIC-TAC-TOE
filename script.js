@@ -231,7 +231,7 @@ const gameBoard = (() => {
         for (let i = 0; i < board.length; i++) {
             const cell = document.querySelector(`#cell-${i}`);
             if (board[i] === 'o') {
-                cell.innerHTML = '<span class="o">⚪</span>'
+                cell.innerHTML = '<span class="o">o</span>'
             }
             else if (board[i] === 'x') {
                 cell.innerHTML = '<span class="x">x</span>'
